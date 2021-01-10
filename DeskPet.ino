@@ -3,30 +3,37 @@
 #include <EEPROM.h>
 #include "pitches.h"
 
+/// Pins for Display
 const char DIN = 12;
 const char CS =  11;
 const char CLK = 10;
 
+/// Pins for Buttons and Button states
 const char LButton = 51;
 char LButtonState = 0;
 const char MButton = 52;
 char MButtonState = 0;
 const char RButton = 53;
 char RButtonState = 0;
-
+ 
+/// Pin for Buzzer
 const char buzzer = 50;
 
+/// Initializing the timer
 Timer<1> timer;
 char statsUpdateTime = 15;
 
+/// Initializing the LED matrix
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
+/// Declaring global Variables
 char menuPos;
 byte* face;
 char lifeLevel;
 char hungerLevel;
 char happinessLevel;
 
+/// Face aspect
 byte faceType[][8] = {
   {0x42, 0x24, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00}, //dead
   {0x00, 0x24, 0x66, 0x81, 0x18, 0xA5, 0x00, 0x00}, //cry
@@ -36,6 +43,7 @@ byte faceType[][8] = {
   {0x66, 0x66, 0x66, 0x00, 0x24, 0x18, 0x00, 0x00}  //happy
 };
 
+/// Function to set face
 byte* faceStatus(char lifeLevel, char hungerLevel, char happinessLevel) {
 
   if (lifeLevel == 0 || hungerLevel == 0) {
@@ -45,6 +53,7 @@ byte* faceStatus(char lifeLevel, char hungerLevel, char happinessLevel) {
   }
 }
 
+/// Function to display life level
 void lifeStatus(byte level) {
   byte lifeLevel[6][8] = {
     {0x00, 0x66, 0x99, 0x81, 0x81, 0x42, 0x24, 0x18}, //Empty
@@ -70,6 +79,7 @@ void lifeStatus(byte level) {
   displayLED(lifeLevel[level]);
 }
 
+/// Function to display hunger level
 void hungerStatus(byte level) {
   byte hungerLevel[6][8] = {
     {0x0E, 0x1B, 0x24, 0x24, 0x42, 0x42, 0x42, 0x3C}, //Empty
@@ -96,6 +106,7 @@ void hungerStatus(byte level) {
 
 }
 
+/// Function to set the menu position
 byte getMenu(char pos) {
 
   if (pos != 0) {
@@ -106,12 +117,14 @@ byte getMenu(char pos) {
 
 }
 
+/// Display the life and hunger level
 void displayStatus() {
 
   lifeStatus(lifeLevel);
   hungerStatus(hungerLevel);
 }
 
+/// Healing Menu
 void heal() {
 
   byte options[][8] = {
@@ -149,6 +162,7 @@ void heal() {
 
 }
 
+/// Feeding Menu
 void feed() {
 
   byte options[][8] = {
@@ -188,6 +202,7 @@ void feed() {
 
 }
 
+/// Singing Menu
 void sing() {
   byte options[][8] = {
     {0x00, 0x46, 0xC5, 0x45, 0x4C, 0xEC, 0x00, 0x00},
@@ -204,7 +219,7 @@ void sing() {
   int song4[] = {NOTE_E5, NOTE_D5, NOTE_FS4, NOTE_GS4, NOTE_CS5, NOTE_B4, NOTE_D4, NOTE_E4, NOTE_B4, NOTE_A4, NOTE_CS4, NOTE_E4, NOTE_A4};
   int song5[] = {NOTE_DS4, NOTE_E4, REST, NOTE_FS4, NOTE_G4, REST, NOTE_DS4, NOTE_E4, NOTE_FS4, NOTE_G4, NOTE_C5, NOTE_B4, NOTE_E4, NOTE_G4, NOTE_B4, NOTE_AS4, NOTE_A4, NOTE_G4, NOTE_E4, NOTE_D4, NOTE_E4};
   int song6[] = {NOTE_C5, NOTE_F5, NOTE_F5, NOTE_G5, NOTE_F5, NOTE_E5, NOTE_D5, NOTE_D5, NOTE_D5, NOTE_G5, NOTE_G5, NOTE_A5, NOTE_G5, NOTE_F5, NOTE_E5, NOTE_C5, NOTE_C5, NOTE_A5, NOTE_A5, NOTE_AS5, NOTE_A5, NOTE_G5, NOTE_F5, NOTE_D5, NOTE_C5, NOTE_C5, NOTE_D5, NOTE_G5, NOTE_E5, NOTE_F5};
-  int* melodies[] = {song1, song2, song3, song4, song5, song6};
+  int* melodies[] = {song1, song2, song3, song4, song6, song5};
 
   // note durations: 4 = quarter note, 8 = eighth note, etc.:
   char duration1[] = {4, 8, 8, 4, 4, 4, 4, 4};
@@ -213,9 +228,9 @@ void sing() {
   char duration4[] = {8, 8, 4, 4, 8, 8, 4, 4, 8, 8, 4, 4, 2};
   char duration5[] = {8, 4, 8, 8, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 16, 16, 16, 16, 2};
   char duration6[] = {4, 4, 8, 8, 8, 8, 4, 4, 4, 4, 8, 8, 8, 8, 4, 4, 4, 4, 8, 8, 8, 8, 4, 4, 8, 8, 4, 4, 4, 2};
-  char* durations[] = {duration1, duration2, duration3, duration4, duration5, duration6};
+  char* durations[] = {duration1, duration2, duration3, duration4, duration6, duration5};
 
-  int lengths[] = {8, 24, 15, 13, 21, 30};
+  int lengths[] = {8, 24, 15, 13, 30, 21};
 
   char opt = 0;
 
@@ -259,7 +274,7 @@ void sing() {
 
 }
 
-/// PLAY
+/// Playing
 char ballDir;
 char xBall, yBall, xBallPrev, yBallPrev;
 char cpu;
@@ -348,7 +363,7 @@ void play() {
   yBallPrev = 2;
 
   byte displ[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  displ[0] = 7 << cpu;
+  displ[0] = 7 << cpu; 
   displ[7] = 7 << player;
 
   bool finishGame = false;
@@ -370,7 +385,7 @@ void play() {
     }
     displ[7] = 7 << player;
 
-    int ezMode = random(1, 5);
+    int ezMode = random(1, 3);
 
     if (cpuRight && cpu > 0) {
       cpu--;
@@ -381,7 +396,7 @@ void play() {
     if (cpu == 0 || (ballDir == 3 && ezMode == 2)) {
       cpuRight = false;
     }
-    if (cpu == 5 || (ballDir == 4 && ezMode == 4)) {
+    if (cpu == 5 || (ballDir == 4 && ezMode == 2)) {
       cpuRight = true;
     }
     displ[0] = 7 << cpu;
@@ -446,6 +461,7 @@ bool updateStats() {
   return false;
 }
 
+/// Death menu
 void reset(){
 
   LButtonState = digitalRead(LButton);
@@ -463,6 +479,7 @@ void reset(){
 
 }
 
+/// Display things on LED
 void displayLED(byte displ [])
 {
   for (char i = 0; i < 8; i++)
@@ -472,12 +489,11 @@ void displayLED(byte displ [])
 }
 
 void setup() {
-  Serial.begin(9600);
-  lc.shutdown(0, false);      // The MAX72XX is in power-saving mode on startup
-  lc.setIntensity(0, 3);      // Set the brightness to maximum value
-  lc.clearDisplay(0);         // and clear the display
+  lc.shutdown(0, false);                  // Activate Power Save Mode
+  lc.setIntensity(0, 3);                  // Set screen brightness to 3
+  lc.clearDisplay(0);                     // Clear display
 
-  menuPos = 0;
+  menuPos = 0; 
   lifeLevel = EEPROM.read(0);
   hungerLevel = EEPROM.read(1);
   happinessLevel = EEPROM.read(2);
